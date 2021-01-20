@@ -49,7 +49,7 @@ func main() {
 		runService(svcName, true)
 		return
 	case "install":
-		err = installService(svcName, "WSL VPN Routing Conflict Service")
+		err = installService(svcName, "WSL VPN Routing Conflict Service", "Automatically removes duplicate VPN network routes that conflict with internal WSL routing.")
 	case "remove":
 		err = removeService(svcName)
 	case "start":

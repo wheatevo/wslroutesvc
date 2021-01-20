@@ -8,4 +8,4 @@ Install the service (as Administrator):
 .\wslroutesvc.exe install
 ```
 
-After installing the service, start it and set it to automatic within services.msc or enable/start it on the command line.
+This command will start the service and set it to automatic startup.
