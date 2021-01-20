@@ -3,8 +3,9 @@ package network
 import (
 	"fmt"
 	"net"
-	"os/exec"
 	"time"
+
+	"github.com/wheatevo/wslroutesvc/runner"
 )
 
 // Route describes a Windows network route
@@ -20,13 +21,13 @@ func NewRoute(network net.IPNet, ifaceID string) Route {
 }
 
 // Remove removes an existing route from the routing table
-func (r *Route) Remove() ([]byte, error) {
-	out, err := exec.Command("netsh", "interface", "ipv4", "delete", "route", r.Network.String(), r.InterfaceID).Output()
+func (r *Route) Remove(runner runner.Runner) ([]byte, error) {
+	out, err := runner.Run("netsh", "interface", "ipv4", "delete", "route", r.Network.String(), r.InterfaceID)
 
 	// For some reason this requires multiple removals to work with the VPN, attempt a second removal if the first succeeds
 	if err == nil {
 		time.Sleep(500 * time.Millisecond)
-		exec.Command("netsh", "interface", "ipv4", "delete", "route", r.Network.String(), r.InterfaceID).Output()
+		runner.Run("netsh", "interface", "ipv4", "delete", "route", r.Network.String(), r.InterfaceID)
 	}
 
 	return out, err

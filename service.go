@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/wheatevo/wslroutesvc/runner"
 	"golang.org/x/sys/windows/svc"
 	"golang.org/x/sys/windows/svc/debug"
 	"golang.org/x/sys/windows/svc/eventlog"
@@ -25,13 +26,15 @@ func (m *wslRouteService) Execute(args []string, r <-chan svc.ChangeRequest, cha
 	lastFixTime := time.Now()
 	currentTime := time.Now()
 	changes <- svc.Status{State: svc.Running, Accepts: cmdsAccepted}
+	runner := runner.ExecRunner{}
+
 loop:
 	for {
 		select {
 		case <-tick:
 			currentTime = time.Now()
 			if currentTime.After(lastFixTime.Add(10 * time.Second)) {
-				fixRoutes("vEthernet (WSL)")
+				fixRoutes("vEthernet (WSL)", &runner)
 				lastFixTime = time.Now()
 			}
 		case c := <-r:

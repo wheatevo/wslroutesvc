@@ -2,8 +2,9 @@ package network
 
 import (
 	"net"
-	"os/exec"
 	"strings"
+
+	"github.com/wheatevo/wslroutesvc/runner"
 )
 
 // RouteList describes one or many Windows network route
@@ -12,11 +13,11 @@ type RouteList struct {
 }
 
 // NewRouteList creates a new network route list from current network routes
-func NewRouteList() RouteList {
+func NewRouteList(runner runner.Runner) RouteList {
 	r := RouteList{[]Route{}}
 
 	// Gather current route output
-	out, err := exec.Command("netsh", "interface", "ipv4", "show", "route").Output()
+	out, err := runner.Run("netsh", "interface", "ipv4", "show", "route")
 
 	if err != nil {
 		return r

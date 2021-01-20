@@ -3,8 +3,9 @@ package network
 import (
 	"fmt"
 	"net"
-	"os/exec"
 	"regexp"
+
+	"github.com/wheatevo/wslroutesvc/runner"
 )
 
 // Iface describes a Windows network interface
@@ -12,22 +13,22 @@ type Iface struct {
 	Name    string
 	ID      string
 	IP      net.IP
-	Network net.IPNet
+	Network *net.IPNet
 }
 
 // NewIface creates a new network interface object
-func NewIface(name string) Iface {
-	n := Iface{name, "", net.IP{}, net.IPNet{}}
+func NewIface(name string, runner runner.Runner) Iface {
+	n := Iface{name, "", net.IP{}, &net.IPNet{}}
 
-	n.RetrieveID()
-	n.RetrieveIP()
+	n.retrieveID(runner)
+	n.retrieveIP(runner)
 
 	return n
 }
 
 // RetrieveID gets the network interface's ID from netsh
-func (n *Iface) RetrieveID() error {
-	out, err := exec.Command("netsh", "interface", "ipv4", "show", "interfaces", n.Name).Output()
+func (n *Iface) retrieveID(runner runner.Runner) error {
+	out, err := runner.Run("netsh", "interface", "ipv4", "show", "interfaces", n.Name)
 
 	if err != nil {
 		return err
@@ -46,8 +47,8 @@ func (n *Iface) RetrieveID() error {
 }
 
 // RetrieveIP gets the network interface's IP from netsh
-func (n *Iface) RetrieveIP() error {
-	out, err := exec.Command("netsh", "interface", "ipv4", "show", "config", n.Name).Output()
+func (n *Iface) retrieveIP(runner runner.Runner) error {
+	out, err := runner.Run("netsh", "interface", "ipv4", "show", "config", n.Name)
 
 	if err != nil {
 		return err
@@ -58,7 +59,6 @@ func (n *Iface) RetrieveIP() error {
 
 	if len(matches) > 0 {
 		n.IP = net.ParseIP(matches[1])
-		return nil
 	}
 
 	r = regexp.MustCompile(`Subnet Prefix:\s+([\w\.\/]+)`)
@@ -67,7 +67,7 @@ func (n *Iface) RetrieveIP() error {
 	if len(matches) > 0 {
 		_, network, _ := net.ParseCIDR(matches[1])
 
-		n.Network = *network
+		n.Network = network
 
 		return nil
 	}
