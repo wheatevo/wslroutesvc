@@ -1,4 +1,4 @@
-# wslroutesvc
+# WSL Routing Conflict Service (wslroutesvc.exe)
 
 Simple service to remove routes in the Windows routing table when they conflict with existing WSL virtual interface routes.
 
