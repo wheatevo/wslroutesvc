@@ -1,4 +1,4 @@
-// +build windows
+//go:build windows
 
 package main
 
@@ -34,7 +34,9 @@ loop:
 		case <-tick:
 			currentTime = time.Now()
 			if currentTime.After(lastFixTime.Add(10 * time.Second)) {
-				fixRoutes("vEthernet (WSL)", &runner)
+				// Versions after 2.0.5.0:  vEthernet (WSL (Hyper-V firewall))
+				// Versions before 2.0.5.0: vEthernet (WSL)
+				fixRoutes([]string{"vEthernet (WSL)", "vEthernet (WSL (Hyper-V firewall))"}, &runner)
 				lastFixTime = time.Now()
 			}
 		case c := <-r:

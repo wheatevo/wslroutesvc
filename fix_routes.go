@@ -1,4 +1,4 @@
-// +build windows
+//go:build windows
 
 package main
 
@@ -9,16 +9,26 @@ import (
 	"github.com/wheatevo/wslroutesvc/runner"
 )
 
-func fixRoutes(wslIfaceName string, runner runner.Runner) {
-	wslIface := network.NewIface(wslIfaceName, runner)
+func fixRoutes(wslIfaceNames []string, runner runner.Runner) {
+	var wslIface network.Iface
+	var wslIfaceName string
+	foundIface := false
 
-	if wslIface.ID == "" {
-		elog.Error(1, fmt.Sprintf("Could not find interface ID for WSL interface %s", wslIfaceName))
-		return
+	// Iterate through possible WSL interface names to find a valid interface
+	for _, ifaceName := range wslIfaceNames {
+		wslIface = network.NewIface(ifaceName, runner)
+
+		if wslIface.ID == "" || wslIface.IP.String() == "<nil>" {
+			continue
+		}
+
+		wslIfaceName = ifaceName
+		foundIface = true
+		break
 	}
 
-	if wslIface.IP.String() == "<nil>" {
-		elog.Error(1, fmt.Sprintf("Could not find interface IP for WSL interface %s", wslIfaceName))
+	if !foundIface {
+		elog.Error(1, fmt.Sprintf("Could not find interface ID or IP for WSL interfaces ", wslIfaceNames))
 		return
 	}
 
