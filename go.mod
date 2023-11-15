@@ -1,5 +1,5 @@
 module github.com/wheatevo/wslroutesvc
 
-go 1.15
+go 1.21
 
-require golang.org/x/sys v0.0.0-20210113181707-4bcb84eeeb78
+require golang.org/x/sys v0.14.0

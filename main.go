@@ -1,11 +1,10 @@
-// +build windows
+//go:build windows
 
 // Windows service for fixing WSL/VPN Routing conflicts automatically
 //
 // This service searches for routing conflicts caused by a VPN and
 // removes any routes that overlap with the WSL network interface
 // to avoid WSL networking failure.
-//
 package main
 
 import (
